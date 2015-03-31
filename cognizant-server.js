@@ -19,7 +19,7 @@ server.get('/echo/:name', function (req, res, next) {
 });
 
 server.post('/snapshots/images/:fileName', function (req, res, next) {
-    var stream = fs.createWriteStream(appConfig.imageLocalPath + '/' + req.params.fileName);
+    var stream = fs.createWriteStream(__dirname + '/' + appConfig.imageLocalPath + '/' + req.params.fileName);
     req.pipe(stream);
     req.once('end', function () {
         console.log('srv: responding');

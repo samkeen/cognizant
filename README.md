@@ -3,6 +3,8 @@
 ## Install
 
 ```bash
+cp config/config.dist.json config/config.json
+
 npm install -g pm2
 nmp install
 ```

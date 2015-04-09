@@ -19,12 +19,32 @@ server.get('/echo/:name', function (req, res, next) {
 });
 
 server.post('/snapshots/images/:fileName', function (req, res, next) {
-    var stream = fs.createWriteStream(__dirname + '/' + appConfig.imageLocalPath + '/' + req.params.fileName);
-    req.pipe(stream);
-    req.once('end', function () {
-        console.log('srv: responding');
-        res.send(204);
-    });
+    if(req.is('application/octet-stream')) {
+        var stream = fs.createWriteStream(__dirname + '/' + appConfig.imageLocalPath + '/' + req.params.fileName);
+        req.pipe(stream);
+        req.once('end', function () {
+            console.log('srv: responding');
+            res.send(204);
+        });
+    } else {
+        fs.readFile(req.files.image.path, function (err, data) {
+            var imageName = req.files.image.name
+            /// If there's an error
+            if(!imageName){
+                console.log("There was an error")
+                res.redirect("/");
+                res.end();
+            } else {
+                var newPath = __dirname + '/' + appConfig.imageLocalPath + '/' + req.params.fileName;
+                /// write file to uploads/fullsize folder
+                fs.writeFile(newPath, data, function (err) {
+                    /// let's see it
+                    //res.redirect("/uploads/fullsize/" + imageName);
+                    res.send(204);
+                });
+            }
+        });
+    }
     next();
 });
 

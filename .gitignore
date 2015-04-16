@@ -3,4 +3,6 @@
 /config/config.json
 /snapshots/images/*
 !/snapshots/images/.gitkeep
+/logs/*
+!/logs/.gitkeep
 

@@ -1,5 +1,16 @@
 var restify = require('restify');
 var fs = require('fs');
+var bunyan = require('bunyan');
+
+var log = bunyan.createLogger({
+    name: 'app_log',
+    streams: [{
+        type: 'rotating-file',
+        path: './logs/app.log',
+        period: '1d',   // daily rotation
+        count: 3        // keep 3 back copies
+    }]
+});
 
 var app_path = __dirname;
 var config_path = app_path + "/config/config.json";
@@ -19,18 +30,28 @@ server.get('/echo/:name', function (req, res, next) {
 });
 
 server.post('/snapshots/images/:fileName', function (req, res, next) {
+    log.info("POST Request from: " + req);
     if(req.is('application/octet-stream')) {
-        var stream = fs.createWriteStream(__dirname + '/' + appConfig.imageLocalPath + '/' + req.params.fileName);
+        log.info("Content-Type: application/octet-stream seen, treating this as a chunked upload");
+        var targetFilePath = __dirname + '/' + appConfig.imageLocalPath + '/' + req.params.fileName;
+        var stream = fs.createWriteStream(targetFilePath);
         req.pipe(stream);
         req.once('end', function () {
-            console.log('srv: responding');
+            log.info("Finished streaming file to disk at: " + targetFilePath);
             res.send(204);
         });
     } else {
+        log.info("Treating this as a NON-chunked normal file upload");
+        if(!req.files.image) {
+            log.error("File payload not seen under form key: 'image'");
+            res.send(400);
+        }
         fs.readFile(req.files.image.path, function (err, data) {
+            if(err) log.error("Error reading chunked file: " + err);
             var imageName = req.files.image.name
             /// If there's an error
             if(!imageName){
+                log.error("file name not found withing the 'image' label.  Aborting");
                 console.log("There was an error")
                 res.redirect("/");
                 res.end();
@@ -38,8 +59,7 @@ server.post('/snapshots/images/:fileName', function (req, res, next) {
                 var newPath = __dirname + '/' + appConfig.imageLocalPath + '/' + req.params.fileName;
                 /// write file to uploads/fullsize folder
                 fs.writeFile(newPath, data, function (err) {
-                    /// let's see it
-                    //res.redirect("/uploads/fullsize/" + imageName);
+                    if(err) log.error("Error writing file to new path " + newPath + "  Error was: " + err);
                     res.send(204);
                 });
             }

@@ -24,6 +24,12 @@ server.use(restify.acceptParser(server.acceptable));
 server.use(restify.queryParser());
 server.use(restify.bodyParser());
 
+server.on('uncaughtException', function (req, res, route, err) {
+    log.error(err);
+    res.send(500, {"error": {"code": 500, "message": err.message}});
+
+});
+
 server.get('/echo/:name', function (req, res, next) {
     res.send(req.params);
     return next();

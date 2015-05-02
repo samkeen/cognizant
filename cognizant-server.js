@@ -6,7 +6,7 @@ var log = bunyan.createLogger({
     name: 'app_log',
     streams: [{
         type: 'rotating-file',
-        path: './logs/app.log',
+        path: __dirname + '/logs/app.log',
         period: '1d',   // daily rotation
         count: 3        // keep 3 back copies
     }]

@@ -19,5 +19,5 @@ pm2 start cognizant-server.js
 
 TBDoc'd
 
-Simple S3 File pump
+Simple File uploader using resify node framework
 

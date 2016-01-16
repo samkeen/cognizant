@@ -1,5 +1,3 @@
-# cognizant
-
 ## Install
 
 ```bash

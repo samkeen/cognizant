@@ -79,19 +79,6 @@ server.get(/\/snapshots\/images\/.*/, restify.serveStatic({
     maxAge: 3600 //Cache-Control: sec
 }));
 
-server.get('/s3-buckets', function (req, res, next) {
-    var DynamoDbAdapter = require('./lib/dynamoDbAdapter.js');
-    var dynamoDbAdapter = new DynamoDbAdapter();
-    dynamoDbAdapter.putItem('boom', function (err, data) {
-        if (err) {
-            res.send({error: err});
-        } else {
-            res.send({buckets: data});
-        }
-    });
-    return next();
-});
-
 server.listen(8777, function () {
     console.log('%s listening at %s', server.name, server.url);
 });
